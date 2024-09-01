@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Fortnite Stats Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .stats-form {
+            margin: 20px 0;
+        }
+        .stats-display {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #000;
+            display: inline-block;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fortnite Stats Tracker</h1>
+    
+    <div class="stats-form">
+        <h2>Enter Your Stats</h2>
+        <form id="statsForm">
+            <input type="text" id="playerName" placeholder="Your Name" required><br><br>
+            <input type="number" id="kills" placeholder="Kills" required><br><br>
+            <button type="submit">Submit Stats</button>
+        </form>
+    </div>
+
+    <div class="stats-display" id="statsDisplay">
+        <h2>Stats Summary</h2>
+        <!-- Stats will be displayed here -->
+    </div>
+
+    <!-- Firebase SDK setup -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDe3KwkVOIlK_sGfRZrZc-JnbRkA1ymIJU",
+            authDomain: "fortnite-tracker-42d56.firebaseapp.com",
+            projectId: "fortnite-tracker-42d56",
+            storageBucket: "fortnite-tracker-42d56.appspot.com",
+            messagingSenderId: "173707902216",
+            appId: "1:173707902216:web:172ddc91d97b6f9d5e00bd",
+            measurementId: "G-PCMP03W5QM"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Form submission handler
+        document.getElementById('statsForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const playerName = document.getElementById('playerName').value;
+            const kills = document.getElementById('kills').value;
+
+            try {
+                // Store stats in Firestore
+                await addDoc(collection(db, "fortniteStats"), {
+                    player: playerName,
+                    kills: parseInt(kills),
+                    timestamp: new Date()
+                });
+                alert("Stats successfully saved!");
+                // Optionally clear the form
+                document.getElementById('statsForm').reset();
+                fetchStats();
+            } catch (error) {
+                console.error("Error writing document: ", error);
+            }
+        });
+
+        // Function to fetch and display stats
+        async function fetchStats() {
+            const statsDisplay = document.getElementById('statsDisplay');
+            statsDisplay.innerHTML = '<h2>Stats Summary</h2>'; // Clear previous entries
+
+            try {
+                const statsQuery = query(collection(db, "fortniteStats"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(statsQuery);
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    statsDisplay.innerHTML += `<p>${data.player}: Kills - ${data.kills}</p>`;
+                });
+            } catch (error) {
+                console.error("Error fetching stats: ", error);
+            }
+        }
+
+        // Fetch stats when the page loads
+        fetchStats();
+    </script>
+</body>
+</html>
