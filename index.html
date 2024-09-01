@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta information and page setup -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Fortnite Stats Tracker</title>
+    
+    <!-- Basic styling for the page -->
     <style>
+        /* General body styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #ffffff;
@@ -13,9 +17,13 @@
             margin: 0;
             padding: 20px;
         }
+        
+        /* Styling for the form section */
         .stats-form {
             margin: 20px 0;
         }
+
+        /* Styling for the stats display section */
         .stats-display {
             margin-top: 20px;
             padding: 10px;
@@ -26,25 +34,33 @@
     </style>
 </head>
 <body>
+    <!-- Main heading of the page -->
     <h1>Fortnite Stats Tracker</h1>
     
+    <!-- Form for entering player stats -->
     <div class="stats-form">
         <h2>Enter Your Stats</h2>
         <form id="statsForm">
+            <!-- Input for player name -->
             <input type="text" id="playerName" placeholder="Your Name" required><br><br>
+            
+            <!-- Input for number of kills -->
             <input type="number" id="kills" placeholder="Kills" required><br><br>
+            
+            <!-- Submit button -->
             <button type="submit">Submit Stats</button>
         </form>
     </div>
 
+    <!-- Section to display the submitted stats -->
     <div class="stats-display" id="statsDisplay">
         <h2>Stats Summary</h2>
-        <!-- Stats will be displayed here -->
+        <!-- Stats will be displayed here by JavaScript -->
     </div>
 
-    <!-- Firebase SDK setup -->
+    <!-- Firebase SDK setup and JavaScript for interacting with Firebase -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // Import necessary Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
@@ -59,41 +75,48 @@
             measurementId: "G-PCMP03W5QM"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase with the provided config
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Form submission handler
+        // Form submission handler to store stats in Firebase
         document.getElementById('statsForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+            event.preventDefault();  // Prevent the form from submitting the traditional way
             
+            // Get values from the form
             const playerName = document.getElementById('playerName').value;
             const kills = document.getElementById('kills').value;
 
             try {
-                // Store stats in Firestore
+                // Store the stats in Firestore
                 await addDoc(collection(db, "fortniteStats"), {
                     player: playerName,
                     kills: parseInt(kills),
                     timestamp: new Date()
                 });
                 alert("Stats successfully saved!");
-                // Optionally clear the form
+
+                // Clear the form after submission
                 document.getElementById('statsForm').reset();
+
+                // Refresh the stats display
                 fetchStats();
             } catch (error) {
                 console.error("Error writing document: ", error);
             }
         });
 
-        // Function to fetch and display stats
+        // Function to fetch and display stats from Firestore
         async function fetchStats() {
             const statsDisplay = document.getElementById('statsDisplay');
-            statsDisplay.innerHTML = '<h2>Stats Summary</h2>'; // Clear previous entries
+            statsDisplay.innerHTML = '<h2>Stats Summary</h2>';  // Clear previous entries
 
             try {
+                // Query Firestore for stats, ordered by timestamp
                 const statsQuery = query(collection(db, "fortniteStats"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(statsQuery);
+                
+                // Loop through the results and display each one
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     statsDisplay.innerHTML += `<p>${data.player}: Kills - ${data.kills}</p>`;
