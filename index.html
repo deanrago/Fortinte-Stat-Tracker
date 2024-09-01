@@ -40,16 +40,19 @@
     <!-- Form for entering player stats -->
     <div class="stats-form">
         <h2>Enter Your Stats</h2>
-        <form id="statsForm">
-            <!-- Input for player name -->
-            <input type="text" id="playerName" placeholder="Your Name" required><br><br>
-            
-            <!-- Input for number of kills -->
-            <input type="number" id="kills" placeholder="Kills" required><br><br>
-            
-            <!-- Submit button -->
-            <button type="submit">Submit Stats</button>
-        </form>
+
+        <!-- Dropdown for selecting player name -->
+        <select id="playerName" required>
+            <option value="" disabled selected>Select your name</option>
+            <option value="Lisa-Al-Gaib">Lisa-Al-Gaib</option>
+            <option value="AFZ1219">AFZ1219</option>
+        </select><br><br>
+
+        <!-- Input for kills -->
+        <input type="number" id="kills" placeholder="Kills" required><br><br>
+
+        <!-- Submit button -->
+        <button type="submit">Submit Stats</button>
     </div>
 
     <!-- Section to display the submitted stats -->
